@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyglot | Universal Code Converter</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --editor-bg: #252526;
+            --text-color: #d4d4d4;
+            --accent: #007acc;
+            --border: #333;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            background-color: #333333;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 { margin: 0; font-size: 1.2rem; color: #fff; }
+        
+        .badge {
+            background-color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--editor-bg);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .pane-header {
+            padding: 10px;
+            background-color: #2d2d2d;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        select {
+            background-color: #3c3c3c;
+            color: white;
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        textarea {
+            flex: 1;
+            background-color: var(--editor-bg);
+            color: var(--text-color);
+            border: none;
+            padding: 15px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #convertBtn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #convertBtn:hover { transform: scale(1.1); }
+        #convertBtn:active { transform: scale(0.95); }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <span>⚡</span>
+        <h1>Polyglot Transpiler</h1>
+        <span class="badge">Compiler Project</span>
+    </div>
+    <div style="font-size: 0.9rem; color: #888;">Python ➜ C • C++ • Java</div>
+</header>
+
+<div class="main-container">
+    
+    <div class="pane">
+        <div class="pane-header">
+            <span>Input Source</span>
+            <select id="inputLang">
+                <option value="python">Python</option>
+            </select>
+        </div>
+        <textarea id="inputCode" spellcheck="false" placeholder="# Type Python code here...
+def add(a, b):
+    return a + b
+
+if __name__ == '__main__':
+    print(add(5, 10))"></textarea>
+    </div>
+
+    <div class="controls">
+        <button id="convertBtn" title="Convert Code">➜</button>
+    </div>
+
+    <div class="pane">
+        <div class="pane-header">
+            <span>Target Output</span>
+            <select id="outputLang">
+                <option value="c">C Language</option>
+                <option value="cpp">C++</option>
+                <option value="java">Java</option>
+            </select>
+        </div>
+        <textarea id="outputCode" readonly placeholder="Translated code will appear here..."></textarea>
+    </div>
+
+</div>
+
+<script>
+    document.getElementById('convertBtn').addEventListener('click', async () => {
+        const code = document.getElementById('inputCode').value;
+        const fromLang = document.getElementById('inputLang').value;
+        const toLang = document.getElementById('outputLang').value;
+        const outputArea = document.getElementById('outputCode');
+
+        outputArea.value = "Compiling...";
+
+        try {
+            const response = await fetch('/convert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, fromLang, toLang })
+            });
+
+            const data = await response.json();
+            outputArea.value = data.result;
+        } catch (error) {
+            outputArea.value = "Error: " + error.message;
+        }
+    });
+</script>
+
+</body>
+</html>
